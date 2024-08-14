@@ -1,0 +1,245 @@
+---
+title: "andrews visual"
+---
+
+```{r, include=FALSE} 
+library("CPAT")
+```
+
+
+find break in data
+```{r, include=FALSE}
+set.seed(10)
+segment_size <- 100
+m <- 10
+samples_before_test <- 90
+
+coefficient_break <- 0.9
+mean_break <- 0
+
+
+true_break_dates <- c(segment_size * 1, segment_size * 2)
+p_threshold <- 0.05
+
+simulated_series <- c(
+                      arima.sim(n = segment_size, list(ar = c(0.1))),
+                      arima.sim(n = segment_size, list(ar = c(coefficient_break))) + mean_break,
+                      arima.sim(n = segment_size, list(ar = c(0.1))))
+
+last_break_n <- 0
+for (n in 0:(length(simulated_series) - m)) {
+  if (n <= last_break_n+samples_before_test) next
+  results <- Andrews.test(x = simulated_series[last_break_n:(n + m)], M = n-last_break_n)
+
+  if (results$p.value <= p_threshold) {
+    cat("estimated date", n, "\n")
+    last_break_n <- n
+    n_total_estimated_dates <- n_total_estimated_dates + 1
+  }
+}
+```
+
+
+p_values change
+Contradictory results
+```{r, include=FALSE}
+set.seed(11)
+segment_size <- 50
+m <- 10
+n_size <- 30
+
+coefficient_break <- 0.7
+mean_break <- 0
+
+simulated_series <- c(
+                      arima.sim(n = segment_size, list(ar = c(0.1))),
+                      arima.sim(n = segment_size, list(ar = c(coefficient_break))) + mean_break,
+                      arima.sim(n = segment_size, list(ar = c(0.1))))
+
+p_values <- rep(NA, segment_size*3)
+for (n_end in n_size:(length(simulated_series) - m)) {
+  p_values[n_end] <- Andrews.test(x = simulated_series[(n_end - n_size + 1):(n_end + m)], M = n_size)$p.value
+}
+
+png(filename = "./code/figures/experiment_2/p_values/contradictory_1.png", width = 1000, height = 400)
+cex <- 1.5
+par(cex.lab = cex, cex.axis = cex, cex.main = cex)
+plot(p_values, type = "l")
+abline(v=c(segment_size * 1, segment_size * 2), col = 'red', lty = 'dotdash', lwd = 3)
+title(main="Panel A: p-values from Andrews test with n=30, m=10 \nModel with two breaks, segment sizes 50, coefficients (0.1, 0.7, 0.1)")
+dev.off()
+```
+
+
+```{r, include=FALSE}
+set.seed(10)
+segment_size <- 50
+m <- 10
+n_size <- 30
+
+coefficient_break <- 0.7
+mean_break <- 0
+
+simulated_series <- c(
+                      arima.sim(n = segment_size, list(ar = c(0.1))),
+                      arima.sim(n = segment_size, list(ar = c(coefficient_break))) + mean_break,
+                      arima.sim(n = segment_size, list(ar = c(0.1))))
+
+p_values <- rep(NA, segment_size*3)
+for (n_end in n_size:(length(simulated_series) - m)) {
+  p_values[n_end] <- Andrews.test(x = simulated_series[(n_end - n_size + 1):(n_end + m)], M = n_size)$p.value
+}
+
+png(filename = "./code/figures/experiment_2/p_values/contradictory_2.png", width = 1000, height = 400)
+cex <- 1.5
+par(cex.lab = cex, cex.axis = cex, cex.main = cex)
+plot(p_values, type = "l")
+abline(v=c(segment_size * 1, segment_size * 2), col = 'red', lty = 'dotdash', lwd = 3)
+title(main="Panel B: p-values from Andrews test with n=30, m=10 \nModel with two breaks, segment sizes 50, coefficients (0.1, 0.7, 0.1)")
+dev.off()
+```
+
+
+n length behaviours
+
+```{r, include=FALSE}
+set.seed(9)
+segment_size <- 300
+m <- 10
+n_size <- 50
+
+coefficient_break <- 0.7
+mean_break <- 0
+
+simulated_series <- c(
+                      arima.sim(n = segment_size, list(ar = c(0.1))),
+                      arima.sim(n = segment_size, list(ar = c(coefficient_break))) + mean_break,
+                      arima.sim(n = segment_size, list(ar = c(0.1))))
+
+p_values <- rep(NA, segment_size*3)
+for (n_end in n_size:(length(simulated_series) - m)) {
+  p_values[n_end] <- Andrews.test(x = simulated_series[(n_end - n_size + 1):(n_end + m)], M = n_size)$p.value
+}
+
+png(filename = "./code/figures/experiment_2/p_values/n_length_panelB.png", width = 1000, height = 400)
+cex <- 1.5
+par(cex.lab = cex, cex.axis = cex, cex.main = cex)
+plot(p_values, type = "l")
+abline(v=c(segment_size * 1, segment_size * 2), col = 'red', lty = 'dotdash', lwd = 3)
+title(main="Panel B: p-values from Andrews test with n=50, m=10 \nModel with two breaks, segment sizes 300, coefficients (0.1, 0.7, 0.1)")
+dev.off()
+```
+
+```{r, include=FALSE}
+set.seed(9)
+segment_size <- 300
+m <- 10
+n_size <- 250
+
+coefficient_break <- 0.7
+mean_break <- 0
+
+simulated_series <- c(
+                      arima.sim(n = segment_size, list(ar = c(0.1))),
+                      arima.sim(n = segment_size, list(ar = c(coefficient_break))) + mean_break,
+                      arima.sim(n = segment_size, list(ar = c(0.1))))
+
+p_values <- rep(NA, segment_size*3)
+for (n_end in n_size:(length(simulated_series) - m)) {
+  p_values[n_end] <- Andrews.test(x = simulated_series[(n_end - n_size + 1):(n_end + m)], M = n_size)$p.value
+}
+
+png(filename = "./code/figures/experiment_2/p_values/n_length_panelC.png", width = 1000, height = 400)
+cex <- 1.5
+par(cex.lab = cex, cex.axis = cex, cex.main = cex)
+plot(p_values, type = "l")
+abline(v=c(segment_size * 1, segment_size * 2), col = 'red', lty = 'dotdash', lwd = 3)
+title(main="Panel C: p-values from Andrews test with n=250, m=10 \nModel with two breaks, segment sizes 300, coefficients (0.1, 0.7, 0.1)")
+dev.off()
+```
+
+```{r, include=FALSE}
+set.seed(9)
+segment_size <- 300
+m <- 10
+n_size <- 20
+
+coefficient_break <- 0.7
+mean_break <- 0
+
+simulated_series <- c(
+                      arima.sim(n = segment_size, list(ar = c(0.1))),
+                      arima.sim(n = segment_size, list(ar = c(coefficient_break))) + mean_break,
+                      arima.sim(n = segment_size, list(ar = c(0.1))))
+
+p_values <- rep(NA, segment_size*3)
+for (n_end in n_size:(length(simulated_series) - m)) {
+  p_values[n_end] <- Andrews.test(x = simulated_series[(n_end - n_size + 1):(n_end + m)], M = n_size)$p.value
+}
+
+png(filename = "./code/figures/experiment_2/p_values/n_length_panelA.png", width = 1000, height = 400)
+cex <- 1.5
+par(cex.lab = cex, cex.axis = cex, cex.main = cex)
+plot(p_values, type = "l")
+abline(v=c(segment_size * 1, segment_size * 2), col = 'red', lty = 'dotdash', lwd = 3)
+title(main="Panel A: p-values from Andrews test with n=20, m=10 \nModel with two breaks, segment sizes 300, coefficients (0.1, 0.7, 0.1)")
+dev.off()
+```
+
+m length behaviours
+
+```{r, include=FALSE}
+set.seed(10)
+segment_size <- 100
+m <- 20
+n_size <- 40
+
+coefficient_break <- 0.7
+mean_break <- 0
+
+simulated_series <- c(
+                      arima.sim(n = segment_size, list(ar = c(0.1))),
+                      arima.sim(n = segment_size, list(ar = c(coefficient_break))) + mean_break,
+                      arima.sim(n = segment_size, list(ar = c(0.1))))
+
+p_values <- rep(NA, segment_size*3)
+for (n_end in n_size:(length(simulated_series) - m)) {
+  p_values[n_end] <- Andrews.test(x = simulated_series[(n_end - n_size + 1):(n_end + m)], M = n_size)$p.value
+}
+
+png(filename = "./code/figures/experiment_2/p_values/m_length_panelB.png", width = 1000, height = 400)
+cex <- 1.5
+par(cex.lab = cex, cex.axis = cex, cex.main = cex)
+plot(p_values, type = "l")
+abline(v=c(segment_size * 1, segment_size * 2), col = 'red', lty = 'dotdash', lwd = 3)
+title(main="Panel B: p-values from Andrews test with n=40, m=20 \nModel with two breaks, segment sizes 100, coefficients (0.1, 0.7, 0.1)")
+dev.off()
+```
+
+```{r, include=FALSE}
+set.seed(10)
+segment_size <- 100
+m <- 5
+n_size <- 40
+
+coefficient_break <- 0.7
+mean_break <- 0
+
+simulated_series <- c(
+                      arima.sim(n = segment_size, list(ar = c(0.1))),
+                      arima.sim(n = segment_size, list(ar = c(coefficient_break))) + mean_break,
+                      arima.sim(n = segment_size, list(ar = c(0.1))))
+
+p_values <- rep(NA, segment_size*3)
+for (n_end in n_size:(length(simulated_series) - m)) {
+  p_values[n_end] <- Andrews.test(x = simulated_series[(n_end - n_size + 1):(n_end + m)], M = n_size)$p.value
+}
+
+png(filename = "./code/figures/experiment_2/p_values/m_length_panelA.png", width = 1000, height = 400)
+cex <- 1.5
+par(cex.lab = cex, cex.axis = cex, cex.main = cex)
+plot(p_values, type = "l")
+abline(v=c(segment_size * 1, segment_size * 2), col = 'red', lty = 'dotdash', lwd = 3)
+title(main="Panel A: p-values from Andrews test with n=40, m=5 \nModel with two breaks, segment sizes 100, coefficients (0.1, 0.7, 0.1)")
+dev.off()
+```

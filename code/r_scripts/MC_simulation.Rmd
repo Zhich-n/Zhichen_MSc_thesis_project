@@ -1,0 +1,87 @@
+---
+title: mc_simulation figures
+---
+```{r} 
+library("purrr")
+```
+
+
+Coefficients
+```{r} 
+set.seed(10)
+segment_size <- 100
+simulated_series <- c(arima.sim(n=segment_size, list(ar=c(0.9)), rand.gen=partial(rnorm, sd=1)), 
+                      arima.sim(n=segment_size, list(ar=c(0.1)), rand.gen=partial(rnorm, sd=1)),
+                      arima.sim(n=segment_size, list(ar=c(0.9)), rand.gen=partial(rnorm, sd=1)))
+png(filename = "./code/figures/mc_simulations/MC_coefficient.png", width=1000, height=400)
+cex <- 1.5
+par(cex.lab=cex, cex.axis=cex, cex.main=cex)
+plot(simulated_series, type="l")
+abline(v=c(100, 200), col='red', lty='dotdash', lwd=3)
+title(main="Panel A: changing coefficients (0.9, 0.1, 0.9), mean 0, standard normal error")
+dev.off()
+```
+
+
+Mean
+```{r}
+set.seed(10)
+segment_size <- 100
+simulated_series <- c(arima.sim(n=segment_size, list(ar=c(0.5)), rand.gen=partial(rnorm, sd=1)), 
+                      arima.sim(n=segment_size, list(ar=c(0.5)), rand.gen=partial(rnorm, sd=1)) + 3,
+                      arima.sim(n=segment_size, list(ar=c(0.5)), rand.gen=partial(rnorm, sd=1)))
+png(filename = "./code/figures/mc_simulations/MC_mean.png", width=1000, height=400)
+cex <- 1.5
+par(cex.lab=cex, cex.axis=cex, cex.main=cex)
+plot(simulated_series, type="l")
+abline(v=c(100, 200), col='red', lty='dotdash', lwd=3)
+title(main="Panel B: changing mean (0, 3, 0), coefficient 0.5, standard normal error")
+dev.off()
+```
+
+Variance
+```{r}
+set.seed(10)
+segment_size <- 100
+simulated_series <- c(arima.sim(n=segment_size, list(ar=c(0.5)), rand.gen=partial(rnorm, sd=1)), 
+                      arima.sim(n=segment_size, list(ar=c(0.5)), rand.gen=partial(rnorm, sd=2)),
+                      arima.sim(n=segment_size, list(ar=c(0.5)), rand.gen=partial(rnorm, sd=1)))
+png(filename = "./code/figures/mc_simulations/MC_var.png", width=1000, height=400)
+cex <- 1.5
+par(cex.lab=cex, cex.axis=cex, cex.main=cex)
+plot(simulated_series, type="l")
+abline(v=c(100, 200), col='red', lty='dotdash', lwd=3)
+title(main="Panel C: changing variance (1, 4, 1), coefficient 0.5, mean 0")
+dev.off()
+```
+
+Mixed variance and coefficient
+```{r}
+set.seed(10)
+segment_size <- 100
+simulated_series <- c(arima.sim(n=segment_size, list(ar=c(0.9)), rand.gen=partial(rnorm, sd=3)), 
+                      arima.sim(n=segment_size, list(ar=c(0.1)), rand.gen=partial(rnorm, sd=1)),
+                      arima.sim(n=segment_size, list(ar=c(0.9)), rand.gen=partial(rnorm, sd=3)))
+png(filename = "./code/figures/mc_simulations/MC_mixed_var_coef_1.png", width=1000, height=400)
+cex <- 1.5
+par(cex.lab=cex, cex.axis=cex, cex.main=cex)
+plot(simulated_series, type="l")
+abline(v=c(100, 200), col='red', lty='dotdash', lwd=3)
+title(main="Panel A: changing variance (9, 1, 9), coefficients (0.9, 0.1, 0.9), mean 0")
+dev.off()
+```
+
+```{r}
+set.seed(10)
+segment_size <- 100
+simulated_series <- c(arima.sim(n=segment_size, list(ar=c(0.9)), rand.gen=partial(rnorm, sd=1)), 
+                      arima.sim(n=segment_size, list(ar=c(0.1)), rand.gen=partial(rnorm, sd=3)),
+                      arima.sim(n=segment_size, list(ar=c(0.9)), rand.gen=partial(rnorm, sd=1)))
+png(filename = "./code/figures/mc_simulations/MC_mixed_var_coef_2.png", width=1000, height=400)
+cex <- 1.5
+par(cex.lab=cex, cex.axis=cex, cex.main=cex)
+plot(simulated_series, type="l")
+abline(v=c(100, 200), col='red', lty='dotdash', lwd=3)
+title(main="Panel B: changing variance (1, 9, 1), coefficients (0.9, 0.1, 0.9), mean 0")
+dev.off()
+```

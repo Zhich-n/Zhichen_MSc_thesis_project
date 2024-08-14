@@ -1,0 +1,77 @@
+---
+title: "bai perron real"
+---
+
+```{r}
+library("data.table")
+library("mbreaks")
+library("CPAT")
+library("pryr")
+```
+
+
+```{r} 
+
+gold_all <- read.csv("./code/data/GOLD.csv", header=TRUE)$Close
+gold_all <- as.data.frame(list(x=gold_all, 
+                           x_lag1=shift(gold_all, n=1)))
+
+```
+
+GBP to USD daily
+
+```{r}
+gbp_to_usd_all = read.csv("./code/data/GBP_TO_USD.csv", header=TRUE)$Close
+gbp_to_usd_all <- as.data.frame(list(x=gbp_to_usd_all, 
+                           x_lag1=shift(gbp_to_usd_all, n=1)))
+
+results <- mdl(y_name = "x", 
+               z_name=c("x_lag1"), 
+               data=gbp_to_usd_all[2:nrow(gbp_to_usd_all), ], 
+               robust = 0, eps1=0, h=100, m=25,
+               const=1)
+
+results$KT
+png(filename = "./code/figures/experiment_1/bai_perron/real_data/gbp_to_usd_daily.png", width=750, height=250)
+plot_model(results$KT, title="Panel A: 0.95 confidence interval, GBP to USD daily")
+dev.off()
+```
+
+
+GBP to USD monthly
+
+```{r}
+gbp_to_usd_monthly = read.csv("./code/data/GBP_TO_USD.csv", header=TRUE)$Close[(1:250)*21]
+gbp_to_usd_monthly <- as.data.frame(list(x=gbp_to_usd_monthly, 
+                           x_lag1=shift(gbp_to_usd_monthly, n=1)))
+
+results <- mdl(y_name = "x", 
+               z_name=c("x_lag1"), 
+               data=gbp_to_usd_monthly[2:nrow(gbp_to_usd_monthly), ], 
+               robust = 0,
+               const=1)
+
+results$KT
+png(filename = "./code/figures/experiment_1/bai_perron/real_data/gbp_to_usd_monthly.png", width=750, height=250)
+plot_model(results$KT, title="Panel B: 0.95 confidence interval, GBP to USD monthly")
+dev.off()
+```
+
+Gold 10 years
+
+```{r}
+gold_2011_to_2021 <- read.csv("./code/data/GOLD.csv", header=TRUE)$Close[((130*21):(250*21))]
+gold_2011_to_2021 <- as.data.frame(list(x=gold_2011_to_2021, 
+                           x_lag1=shift(gold_2011_to_2021, n=1)))
+
+results <- mdl(y_name = "x", 
+               z_name=c("x_lag1"), 
+               data=gold_2011_to_2021[2:nrow(gold_2011_to_2021), ], 
+               robust = 0 ,eps1=0, h=100, m=25,
+               const=1)
+
+results$KT
+png(filename = "./code/figures/experiment_1/bai_perron/real_data/gold_2011_to_2021_daily.png", width=750, height=250)
+plot_model(results$KT, title="0.95 confidence interval, Gold 2011 to 2021 daily")
+dev.off()
+```

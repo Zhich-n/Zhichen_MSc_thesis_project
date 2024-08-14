@@ -1,0 +1,253 @@
+---
+title: "bai perron simulation"
+---
+
+```{r}
+library("data.table")
+library("mbreaks")
+library("CPAT")
+library("pryr")
+```
+
+simulation of random walk
+
+```{r out.width=500, out.height=250}
+plot.new()
+plot((1:101), rep(0,101), ylim=c(-100, 100))
+for(x in 1:100) {
+    simulated_series = arima.sim(n=100, list(order=c(0,1,0)))
+    lines(seq_along(simulated_series), simulated_series)
+}
+```
+
+Changing mean
+
+```{r}
+set.seed(10)
+segment_size <- 50
+simulated_series <- c(arima.sim(n=segment_size+2, list(ar=c(0.5)), rand.gen=partial(rnorm, sd=1)), 
+                      arima.sim(n=segment_size, list(ar=c(0.5)), rand.gen=partial(rnorm, sd=1))+3,
+                      arima.sim(n=segment_size, list(ar=c(0.5)), rand.gen=partial(rnorm, sd=1)))
+data <- as.data.frame(list(x=simulated_series, 
+                           x_lag1=shift(simulated_series, n=1), 
+                           x_lag2=shift(simulated_series, n=2)))
+results <- mdl(y_name = "x", 
+               data=data[3:nrow(data), ], 
+               robust = 0,
+               const=1)
+results$KT
+png(filename = "./code/figures/experiment_1/bai_perron/simulation/MC_mean_change_0_3_0_samples_50.png", width=750, height=250)
+cex <- 3
+par(cex.lab=cex, cex.axis=cex, cex.main=cex)
+plot_model(results$KT, title="Panel A: 0.95 confidence interval, changing means (0, 3, 0), segment sizes 50")
+dev.off()
+```
+
+```{r}
+set.seed(1)
+segment_size <- 50
+simulated_series <- c(arima.sim(n=segment_size+2, list(ar=c(0.5)), rand.gen=partial(rnorm, sd=1)), 
+                      arima.sim(n=segment_size, list(ar=c(0.5)), rand.gen=partial(rnorm, sd=1))+1,
+                      arima.sim(n=segment_size, list(ar=c(0.5)), rand.gen=partial(rnorm, sd=1)))
+data <- as.data.frame(list(x=simulated_series, 
+                           x_lag1=shift(simulated_series, n=1), 
+                           x_lag2=shift(simulated_series, n=2)))
+results <- mdl(y_name = "x", 
+               data=data[3:nrow(data), ], 
+               robust = 0,
+               const=1)
+results$KT
+png(filename = "./code/figures/experiment_1/bai_perron/simulation/MC_mean_change_0_1_0_samples_50.png", width=750, height=250)
+cex <- 3
+par(cex.lab=cex, cex.axis=cex, cex.main=cex)
+plot_model(results$KT, title="Panel B: 0.95 confidence interval, changing means (0, 1, 0), segment sizes 50")
+dev.off()
+```
+
+Changing coefficients
+```{r}
+set.seed(1)
+segment_size <- 50
+simulated_series <- c(arima.sim(n=segment_size+2, list(ar=c(0.1)), rand.gen=partial(rnorm, sd=1)), 
+                      arima.sim(n=segment_size, list(ar=c(0.9)), rand.gen=partial(rnorm, sd=1)),
+                      arima.sim(n=segment_size, list(ar=c(0.1)), rand.gen=partial(rnorm, sd=1)))
+data <- as.data.frame(list(x=simulated_series, 
+                           x_lag1=shift(simulated_series, n=1), 
+                           x_lag2=shift(simulated_series, n=2)))
+results <- mdl(y_name = "x", 
+               z_name=c("x_lag1"), 
+               data=data[3:nrow(data), ], 
+               robust = 0,
+               const=0)
+results$KT
+png(filename = "./code/figures/experiment_1/bai_perron/simulation/MC_coefficient_change_0.1_0.9_0.1_samples_50.png", width=750, height=250)
+cex <- 1.5
+par(cex.lab=cex, cex.axis=cex, cex.main=cex)
+plot_model(results$KT, title="Panel A: 0.95 confidence interval, AR(1) coefficients (0.1, 0.9, 0.1), segment sizes 50")
+dev.off()
+```
+
+```{r}
+set.seed(41)
+segment_size <- 50
+simulated_series <- c(arima.sim(n=segment_size+2, list(ar=c(0.1)), rand.gen=partial(rnorm, sd=1)), 
+                      arima.sim(n=segment_size, list(ar=c(0.5)), rand.gen=partial(rnorm, sd=1)),
+                      arima.sim(n=segment_size, list(ar=c(0.1)), rand.gen=partial(rnorm, sd=1)))
+data <- as.data.frame(list(x=simulated_series, 
+                           x_lag1=shift(simulated_series, n=1), 
+                           x_lag2=shift(simulated_series, n=2)))
+results <- mdl(y_name = "x", 
+               z_name=c("x_lag1"), 
+               data=data[3:nrow(data), ], 
+               robust = 0,
+               const=0)
+results$KT
+png(filename = "./code/figures/experiment_1/bai_perron/simulation/MC_coefficient_change_0.1_0.5_0.1_samples_50.png", width=750, height=250)
+cex <- 1.5
+par(cex.lab=cex, cex.axis=cex, cex.main=cex)
+plot_model(results$KT, title="Panel B: 0.95 confidence interval, AR(1) coefficients (0.1, 0.5, 0.1), segment sizes 50")
+dev.off()
+```
+
+mixed mean and coefficient
+```{r}
+set.seed(1)
+segment_size <- 50
+simulated_series <- c(arima.sim(n=segment_size+2, list(ar=c(0.1)), rand.gen=partial(rnorm, sd=1)), 
+                      arima.sim(n=segment_size, list(ar=c(0.9)), rand.gen=partial(rnorm, sd=1)) + 1,
+                      arima.sim(n=segment_size, list(ar=c(0.1)), rand.gen=partial(rnorm, sd=1)) -1)
+data <- as.data.frame(list(x=simulated_series, 
+                           x_lag1=shift(simulated_series, n=1), 
+                           x_lag2=shift(simulated_series, n=2)))
+results <- mdl(y_name = "x", 
+               z_name=c("x_lag1"), 
+               data=data[3:nrow(data), ], 
+               robust = 0,
+               const=1)
+results$KT
+png(filename = "./code/figures/experiment_1/bai_perron/simulation/MC_mixed_mean_0_1_-1_coefficients_0.1_0.9_0.1_samples_50.png", width=750, height=250)
+cex <- 1.5
+par(cex.lab=cex, cex.axis=cex, cex.main=cex)
+plot_model(results$KT, title="Panel A: 0.95 confidence interval, mean (0, 1, -1), coefficients (0.1, 0.9, 0.1) segment sizes 50")
+dev.off()
+```
+
+```{r}
+set.seed(41)
+segment_size <- 50
+simulated_series <- c(arima.sim(n=segment_size+2, list(ar=c(0.1)), rand.gen=partial(rnorm, sd=1)), 
+                      arima.sim(n=segment_size, list(ar=c(0.5)), rand.gen=partial(rnorm, sd=1)) + 1,
+                      arima.sim(n=segment_size, list(ar=c(0.1)), rand.gen=partial(rnorm, sd=1)) + 3)
+data <- as.data.frame(list(x=simulated_series, 
+                           x_lag1=shift(simulated_series, n=1), 
+                           x_lag2=shift(simulated_series, n=2)))
+results <- mdl(y_name = "x", 
+               z_name=c("x_lag1"), 
+               data=data[3:nrow(data), ], 
+               robust = 0,
+               const=1)
+results$KT
+png(filename = "./code/figures/experiment_1/bai_perron/simulation/MC_mixed_mean_0_1_3_coefficients_0.1_0.5_0.1_samples_50.png", width=750, height=250)
+cex <- 1.5
+par(cex.lab=cex, cex.axis=cex, cex.main=cex)
+plot_model(results$KT, title="Panel B: 0.95 confidence interval, mean (0, 1, 3), coefficients (0.1, 0.5, 0.1) segment sizes 50")
+dev.off()
+```
+
+Large sample sizes
+
+```{r}
+set.seed(10)
+segment_size <- 200
+simulated_series <- c(arima.sim(n=segment_size+2, list(ar=c(0.1)), rand.gen=partial(rnorm, sd=1)), 
+                      arima.sim(n=segment_size, list(ar=c(0.5)), rand.gen=partial(rnorm, sd=1)),
+                      arima.sim(n=segment_size, list(ar=c(0.1)), rand.gen=partial(rnorm, sd=1)))
+data <- as.data.frame(list(x=simulated_series, 
+                           x_lag1=shift(simulated_series, n=1), 
+                           x_lag2=shift(simulated_series, n=2)))
+results <- mdl(y_name = "x", 
+               z_name=c("x_lag1"), 
+               data=data[3:nrow(data), ], 
+               robust = 0,
+               const=0)
+results$KT
+png(filename = "./code/figures/experiment_1/bai_perron/simulation/MC_large_coefficient_change_0.1_0.5_0.1_samples_200.png", width=750, height=250)
+cex <- 1.5
+par(cex.lab=cex, cex.axis=cex, cex.main=cex)
+plot_model(results$KT, title="0.95 confidence interval, AR(1) coefficients (0.1, 0.5, 0.1), segment sizes 200")
+dev.off()
+```
+
+```{r}
+set.seed(10)
+segment_size <- 2000
+simulated_series <- c(arima.sim(n=segment_size+2, list(ar=c(0.1)), rand.gen=partial(rnorm, sd=1)), 
+                      arima.sim(n=segment_size, list(ar=c(0.3)), rand.gen=partial(rnorm, sd=1)),
+                      arima.sim(n=segment_size, list(ar=c(0.1)), rand.gen=partial(rnorm, sd=1)))
+data <- as.data.frame(list(x=simulated_series, 
+                           x_lag1=shift(simulated_series, n=1), 
+                           x_lag2=shift(simulated_series, n=2)))
+results <- mdl(y_name = "x", 
+               z_name=c("x_lag1"), 
+               data=data[3:nrow(data), ], 
+               robust = 0,
+               const=0)
+results$KT
+png(filename = "./code/figures/experiment_1/bai_perron/simulation/MC_large_coefficient_change_0.1_0.3_0.1_samples_500.png", width=750, height=250)
+cex <- 1.5
+par(cex.lab=cex, cex.axis=cex, cex.main=cex)
+plot_model(results$KT, title="Panel B: 0.95 confidence interval, AR(1) coefficients (0.1, 0.3, 0.1), segment sizes 500")
+dev.off()
+```
+
+many changes
+
+```{r}
+set.seed(14)
+segment_size <- 100
+simulated_series <- c(arima.sim(n=segment_size+2, list(ar=c(0.1)), rand.gen=partial(rnorm, sd=1)), 
+                      arima.sim(n=segment_size, list(ar=c(0.7)), rand.gen=partial(rnorm, sd=1)),
+                      arima.sim(n=segment_size, list(ar=c(0.1)), rand.gen=partial(rnorm, sd=1)), 
+                      arima.sim(n=segment_size, list(ar=c(0.7)), rand.gen=partial(rnorm, sd=1)), 
+                      arima.sim(n=segment_size, list(ar=c(0.1)), rand.gen=partial(rnorm, sd=1)),
+                      arima.sim(n=segment_size, list(ar=c(0.7)), rand.gen=partial(rnorm, sd=1)))
+data <- as.data.frame(list(x=simulated_series, 
+                           x_lag1=shift(simulated_series, n=1), 
+                           x_lag2=shift(simulated_series, n=2)))
+results <- mdl(y_name = "x", 
+               z_name=c("x_lag1"), 
+               data=data[3:nrow(data), ], 
+               robust = 0,
+               const=0)
+results$KT
+png(filename = "./code/figures/experiment_1/bai_perron/simulation/MC_many_coefficient_alternate_0.1_0.7_100.png", width=750, height=250)
+cex <- 1.5
+par(cex.lab=cex, cex.axis=cex, cex.main=cex)
+plot_model(results$KT, title="Panel D: 0.95 confidence interval, AR(1) coefficients alternate between 0.1 and 0.7, 5 segment sizes of 100")
+dev.off()
+```
+
+```{r}
+set.seed(11)
+segment_size <- 100
+simulated_series <- c(arima.sim(n=segment_size+2, list(ar=c(0.1)), rand.gen=partial(rnorm, sd=1)), 
+                      arima.sim(n=segment_size, list(ar=c(0.9)), rand.gen=partial(rnorm, sd=1)),
+                      arima.sim(n=segment_size, list(ar=c(0.1)), rand.gen=partial(rnorm, sd=1)), 
+                      arima.sim(n=segment_size, list(ar=c(0.9)), rand.gen=partial(rnorm, sd=1)), 
+                      arima.sim(n=segment_size, list(ar=c(0.1)), rand.gen=partial(rnorm, sd=1)),
+                      arima.sim(n=segment_size, list(ar=c(0.9)), rand.gen=partial(rnorm, sd=1)))
+data <- as.data.frame(list(x=simulated_series, 
+                           x_lag1=shift(simulated_series, n=1), 
+                           x_lag2=shift(simulated_series, n=2)))
+results <- mdl(y_name = "x", 
+               z_name=c("x_lag1"), 
+               data=data[3:nrow(data), ], 
+               robust = 0,
+               const=0)
+results$KT
+png(filename = "./code/figures/experiment_1/bai_perron/simulation/MC_many_coefficient_alternate_0.1_0.9_100.png", width=750, height=250)
+cex <- 1.5
+par(cex.lab=cex, cex.axis=cex, cex.main=cex)
+plot_model(results$KT, title="Panel C: 0.95 confidence interval, AR(1) coefficients alternate between 0.1 and 0.9, 5 segments of sizes 100")
+dev.off()
+```

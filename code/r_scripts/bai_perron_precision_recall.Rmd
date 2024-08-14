@@ -1,0 +1,80 @@
+---
+title: "bai perron precision recall"
+---
+
+```{r, include=FALSE}
+library("data.table")
+library("mbreaks")
+library("CPAT")
+library("pryr")
+```
+
+```{r, include=FALSE}
+set.seed(10)
+experiment_repeat <- 10000
+segment_size <- 100
+coefficient_break <- 0.3
+mean_break <- 1
+error_percentage_1 <- 0.1
+error_percentage_2 <- 0.2
+error_size_1 <- error_percentage_1 * segment_size
+error_size_2 <- error_percentage_2 * segment_size
+
+n_total_estimated_dates <- 0
+n_total_true_break_dates <- 0 
+n_estimated_true_1 <- 0
+n_estimated_true_2 <- 0
+true_break_dates <- c(segment_size*1, segment_size*2)
+
+for (i in 1:experiment_repeat) {
+    simulated_series <- c(arima.sim(n=segment_size+2, list(ar=c(0.1)), rand.gen=partial(rnorm, sd=1)), 
+                        arima.sim(n=segment_size, list(ar=c(coefficient_break)), rand.gen=partial(rnorm, sd=1))+mean_break,
+                        arima.sim(n=segment_size, list(ar=c(0.1)), rand.gen=partial(rnorm, sd=1)))
+    data <- as.data.frame(list(x=simulated_series, 
+                            x_lag1=shift(simulated_series, n=1), 
+                            x_lag2=shift(simulated_series, n=2)))
+    results <- doorder(y_name = "x", 
+                z_name=c("x_lag1"), 
+                data=data[3:nrow(data), ], 
+                robust = 0, ic=c("KT"),
+                const=1)
+
+    if(results$nbreak != 0) {
+        for(estimated_date in results$date) {
+            for(true_date in true_break_dates) {
+                if(true_date-error_size_1 <= estimated_date && estimated_date <= true_date+error_size_1) {
+                    n_estimated_true_1 = n_estimated_true_1 + 1
+                }
+                if(true_date-error_size_2 <= estimated_date && estimated_date <= true_date+error_size_2) {
+                    n_estimated_true_2 = n_estimated_true_2 + 1
+                }
+            }
+        }
+    }
+    n_total_estimated_dates = n_total_estimated_dates + results$nbreak
+    n_total_true_break_dates = n_total_true_break_dates + 2
+}
+```
+
+```{r, echo=FALSE}
+cat("results for", experiment_repeat, "repetitions")
+cat("segment size", segment_size)
+cat("break in coefficient", coefficient_break)
+cat("break in mean", mean_break)
+
+cat("n_total_true_break_dates", n_total_true_break_dates)
+cat("n_total_estimated_dates", n_total_estimated_dates)
+cat("n_estimated_true 0.1", n_estimated_true_1)
+cat("n_estimated_true 0.2", n_estimated_true_2)
+
+cat("precision 0.1 error", n_estimated_true_1 / n_total_estimated_dates)
+cat("recall 0.1 error", n_estimated_true_1 / n_total_true_break_dates)
+
+cat("precision 0.2 error", n_estimated_true_2 / n_total_estimated_dates)
+cat("recall 0.2 error", n_estimated_true_2 / n_total_true_break_dates)
+```
+
+
+
+
+

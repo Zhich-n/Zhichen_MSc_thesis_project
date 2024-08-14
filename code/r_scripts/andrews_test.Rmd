@@ -1,0 +1,35 @@
+---
+title: "andrews test"
+---
+
+```{r, include=FALSE} 
+library("CPAT") 
+```
+
+
+```{r, include=FALSE}
+set.seed(10)
+experiment_repeat <- 5000
+n <- 100
+m <- 10
+coefficient_break <- 0.1
+mean_break <- 0
+p_threshold <- 0.05
+
+results_true_false <- rep(0, experiment_repeat)
+for (i in 1:experiment_repeat) {
+  simulated_series <- c(
+                        arima.sim(n = n, list(ar = c(0.1))),
+                        arima.sim(n = m, list(ar = c(coefficient_break))) + mean_break)
+
+  results <- Andrews.test(x = simulated_series, M = n)
+
+  if (results$p.value <= p_threshold) {
+    results_true_false[i] <- 1
+  }
+}
+
+cat("percentage correct", (sum(results_true_false) / experiment_repeat))
+```
+
+

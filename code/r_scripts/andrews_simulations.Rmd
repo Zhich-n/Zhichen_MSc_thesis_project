@@ -1,0 +1,1335 @@
+---
+title: "andrews simulations"
+---
+
+```{r, include=FALSE} 
+library("CPAT") 
+```
+
+
+```{r, include=FALSE}
+set.seed(10)
+experiment_repeat <- 5000
+segment_size <- 50
+m <- 5
+samples_before_test <- 30
+
+coefficient_break <- 0.5
+mean_break <- 0
+
+
+true_break_dates <- c(segment_size * 1, segment_size * 2)
+p_threshold <- 0.0001
+error_percentage_1 <- 0.1
+error_percentage_2 <- 0.2
+error_size_1 <- error_percentage_1 * m
+error_size_2 <- error_percentage_2 * m
+
+n_total_estimated_dates <- 0
+n_total_true_break_dates <- 0
+n_estimated_true_1 <- 0
+n_estimated_true_2 <- 0
+
+for (i in 1:experiment_repeat) {
+  simulated_series <- c(
+                        arima.sim(n = segment_size, list(ar = c(0.1))),
+                        arima.sim(n = segment_size, list(ar = c(coefficient_break))) + mean_break,
+                        arima.sim(n = segment_size, list(ar = c(0.1))))
+
+  last_break_n <- 0
+  for (n in 0:(length(simulated_series) - m)) {
+    if (n <= last_break_n+samples_before_test) next
+    results <- Andrews.test(x = simulated_series[last_break_n:(n + m)], M = n-last_break_n)
+
+    if (results$p.value <= p_threshold) {
+      cat("estimated date", n)
+      last_break_n <- n
+      n_total_estimated_dates <- n_total_estimated_dates + 1
+      for (true_date in true_break_dates) {
+        if (true_date - error_size_1 <= n && n <= true_date + error_size_1) {
+          n_estimated_true_1 <- n_estimated_true_1 + 1
+        }
+        if (true_date - error_size_2 <= n && n <= true_date + error_size_2) {
+          n_estimated_true_2 <- n_estimated_true_2 + 1
+        }
+      }
+    }
+  }
+  n_total_true_break_dates <- n_total_true_break_dates + 2
+}
+```
+
+```{r, echo=FALSE}
+cat("results for", experiment_repeat, "repetitions")
+cat("segment size", segment_size)
+cat("size m", m)
+cat("available samples before test start", samples_before_test)
+cat("break in coefficient", coefficient_break)
+cat("break in mean", mean_break)
+cat('p_threshold', p_threshold)
+
+cat("n_total_true_break_dates", n_total_true_break_dates)
+cat("n_total_estimated_dates", n_total_estimated_dates)
+cat("n_estimated_true 0.1", n_estimated_true_1)
+cat("n_estimated_true 0.2", n_estimated_true_2)
+
+# cat("precision 0.1 error", n_estimated_true_1 / n_total_estimated_dates)
+# cat("recall 0.1 error", n_estimated_true_1 / n_total_true_break_dates)
+
+cat("precision 0.2 error", n_estimated_true_2 / n_total_estimated_dates)
+cat("recall 0.2 error", n_estimated_true_2 / n_total_true_break_dates)
+```
+
+
+
+
+
+
+
+
+
+```{r, include=FALSE}
+set.seed(10)
+experiment_repeat <- 5000
+segment_size <- 50
+m <- 5
+samples_before_test <- 30
+
+coefficient_break <- 0.7
+mean_break <- 0
+
+
+true_break_dates <- c(segment_size * 1, segment_size * 2)
+p_threshold <- 0.0001
+error_percentage_1 <- 0.1
+error_percentage_2 <- 0.2
+error_size_1 <- error_percentage_1 * m
+error_size_2 <- error_percentage_2 * m
+
+n_total_estimated_dates <- 0
+n_total_true_break_dates <- 0
+n_estimated_true_1 <- 0
+n_estimated_true_2 <- 0
+
+for (i in 1:experiment_repeat) {
+  simulated_series <- c(
+                        arima.sim(n = segment_size, list(ar = c(0.1))),
+                        arima.sim(n = segment_size, list(ar = c(coefficient_break))) + mean_break,
+                        arima.sim(n = segment_size, list(ar = c(0.1))))
+
+  last_break_n <- 0
+  for (n in 0:(length(simulated_series) - m)) {
+    if (n <= last_break_n+samples_before_test) next
+    results <- Andrews.test(x = simulated_series[last_break_n:(n + m)], M = n-last_break_n)
+
+    if (results$p.value <= p_threshold) {
+      cat("estimated date", n)
+      last_break_n <- n
+      n_total_estimated_dates <- n_total_estimated_dates + 1
+      for (true_date in true_break_dates) {
+        if (true_date - error_size_1 <= n && n <= true_date + error_size_1) {
+          n_estimated_true_1 <- n_estimated_true_1 + 1
+        }
+        if (true_date - error_size_2 <= n && n <= true_date + error_size_2) {
+          n_estimated_true_2 <- n_estimated_true_2 + 1
+        }
+      }
+    }
+  }
+  n_total_true_break_dates <- n_total_true_break_dates + 2
+}
+```
+
+```{r, echo=FALSE}
+cat("results for", experiment_repeat, "repetitions")
+cat("segment size", segment_size)
+cat("size m", m)
+cat("available samples before test start", samples_before_test)
+cat("break in coefficient", coefficient_break)
+cat("break in mean", mean_break)
+cat('p_threshold', p_threshold)
+
+cat("n_total_true_break_dates", n_total_true_break_dates)
+cat("n_total_estimated_dates", n_total_estimated_dates)
+cat("n_estimated_true 0.1", n_estimated_true_1)
+cat("n_estimated_true 0.2", n_estimated_true_2)
+
+# cat("precision 0.1 error", n_estimated_true_1 / n_total_estimated_dates)
+# cat("recall 0.1 error", n_estimated_true_1 / n_total_true_break_dates)
+
+cat("precision 0.2 error", n_estimated_true_2 / n_total_estimated_dates)
+cat("recall 0.2 error", n_estimated_true_2 / n_total_true_break_dates)
+```
+
+```{r, include=FALSE}
+set.seed(10)
+experiment_repeat <- 5000
+segment_size <- 50
+m <- 5
+samples_before_test <- 30
+
+coefficient_break <- 0.9
+mean_break <- 0
+
+
+true_break_dates <- c(segment_size * 1, segment_size * 2)
+p_threshold <- 0.0001
+error_percentage_1 <- 0.1
+error_percentage_2 <- 0.2
+error_size_1 <- error_percentage_1 * m
+error_size_2 <- error_percentage_2 * m
+
+n_total_estimated_dates <- 0
+n_total_true_break_dates <- 0
+n_estimated_true_1 <- 0
+n_estimated_true_2 <- 0
+
+for (i in 1:experiment_repeat) {
+  simulated_series <- c(
+                        arima.sim(n = segment_size, list(ar = c(0.1))),
+                        arima.sim(n = segment_size, list(ar = c(coefficient_break))) + mean_break,
+                        arima.sim(n = segment_size, list(ar = c(0.1))))
+
+  last_break_n <- 0
+  for (n in 0:(length(simulated_series) - m)) {
+    if (n <= last_break_n+samples_before_test) next
+    results <- Andrews.test(x = simulated_series[last_break_n:(n + m)], M = n-last_break_n)
+
+    if (results$p.value <= p_threshold) {
+      cat("estimated date", n)
+      last_break_n <- n
+      n_total_estimated_dates <- n_total_estimated_dates + 1
+      for (true_date in true_break_dates) {
+        if (true_date - error_size_1 <= n && n <= true_date + error_size_1) {
+          n_estimated_true_1 <- n_estimated_true_1 + 1
+        }
+        if (true_date - error_size_2 <= n && n <= true_date + error_size_2) {
+          n_estimated_true_2 <- n_estimated_true_2 + 1
+        }
+      }
+    }
+  }
+  n_total_true_break_dates <- n_total_true_break_dates + 2
+}
+```
+
+```{r, echo=FALSE}
+cat("results for", experiment_repeat, "repetitions")
+cat("segment size", segment_size)
+cat("size m", m)
+cat("available samples before test start", samples_before_test)
+cat("break in coefficient", coefficient_break)
+cat("break in mean", mean_break)
+cat('p_threshold', p_threshold)
+
+cat("n_total_true_break_dates", n_total_true_break_dates)
+cat("n_total_estimated_dates", n_total_estimated_dates)
+cat("n_estimated_true 0.1", n_estimated_true_1)
+cat("n_estimated_true 0.2", n_estimated_true_2)
+
+# cat("precision 0.1 error", n_estimated_true_1 / n_total_estimated_dates)
+# cat("recall 0.1 error", n_estimated_true_1 / n_total_true_break_dates)
+
+cat("precision 0.2 error", n_estimated_true_2 / n_total_estimated_dates)
+cat("recall 0.2 error", n_estimated_true_2 / n_total_true_break_dates)
+```
+
+
+```{r, include=FALSE}
+set.seed(10)
+experiment_repeat <- 5000
+segment_size <- 50
+m <- 10
+samples_before_test <- 30
+
+coefficient_break <- 0.5
+mean_break <- 0
+
+
+true_break_dates <- c(segment_size * 1, segment_size * 2)
+p_threshold <- 0.0001
+error_percentage_1 <- 0.1
+error_percentage_2 <- 0.2
+error_size_1 <- error_percentage_1 * m
+error_size_2 <- error_percentage_2 * m
+
+n_total_estimated_dates <- 0
+n_total_true_break_dates <- 0
+n_estimated_true_1 <- 0
+n_estimated_true_2 <- 0
+
+for (i in 1:experiment_repeat) {
+  simulated_series <- c(
+                        arima.sim(n = segment_size, list(ar = c(0.1))),
+                        arima.sim(n = segment_size, list(ar = c(coefficient_break))) + mean_break,
+                        arima.sim(n = segment_size, list(ar = c(0.1))))
+
+  last_break_n <- 0
+  for (n in 0:(length(simulated_series) - m)) {
+    if (n <= last_break_n+samples_before_test) next
+    results <- Andrews.test(x = simulated_series[last_break_n:(n + m)], M = n-last_break_n)
+
+    if (results$p.value <= p_threshold) {
+      cat("estimated date", n)
+      last_break_n <- n
+      n_total_estimated_dates <- n_total_estimated_dates + 1
+      for (true_date in true_break_dates) {
+        if (true_date - error_size_1 <= n && n <= true_date + error_size_1) {
+          n_estimated_true_1 <- n_estimated_true_1 + 1
+        }
+        if (true_date - error_size_2 <= n && n <= true_date + error_size_2) {
+          n_estimated_true_2 <- n_estimated_true_2 + 1
+        }
+      }
+    }
+  }
+  n_total_true_break_dates <- n_total_true_break_dates + 2
+}
+```
+
+```{r, echo=FALSE}
+cat("results for", experiment_repeat, "repetitions")
+cat("segment size", segment_size)
+cat("size m", m)
+cat("available samples before test start", samples_before_test)
+cat("break in coefficient", coefficient_break)
+cat("break in mean", mean_break)
+cat('p_threshold', p_threshold)
+
+cat("n_total_true_break_dates", n_total_true_break_dates)
+cat("n_total_estimated_dates", n_total_estimated_dates)
+cat("n_estimated_true 0.1", n_estimated_true_1)
+cat("n_estimated_true 0.2", n_estimated_true_2)
+
+# cat("precision 0.1 error", n_estimated_true_1 / n_total_estimated_dates)
+# cat("recall 0.1 error", n_estimated_true_1 / n_total_true_break_dates)
+
+cat("precision 0.2 error", n_estimated_true_2 / n_total_estimated_dates)
+cat("recall 0.2 error", n_estimated_true_2 / n_total_true_break_dates)
+```
+
+```{r, include=FALSE}
+set.seed(10)
+experiment_repeat <- 5000
+segment_size <- 50
+m <- 10
+samples_before_test <- 30
+
+coefficient_break <- 0.7
+mean_break <- 0
+
+
+true_break_dates <- c(segment_size * 1, segment_size * 2)
+p_threshold <- 0.0001
+error_percentage_1 <- 0.1
+error_percentage_2 <- 0.2
+error_size_1 <- error_percentage_1 * m
+error_size_2 <- error_percentage_2 * m
+
+n_total_estimated_dates <- 0
+n_total_true_break_dates <- 0
+n_estimated_true_1 <- 0
+n_estimated_true_2 <- 0
+
+for (i in 1:experiment_repeat) {
+  simulated_series <- c(
+                        arima.sim(n = segment_size, list(ar = c(0.1))),
+                        arima.sim(n = segment_size, list(ar = c(coefficient_break))) + mean_break,
+                        arima.sim(n = segment_size, list(ar = c(0.1))))
+
+  last_break_n <- 0
+  for (n in 0:(length(simulated_series) - m)) {
+    if (n <= last_break_n+samples_before_test) next
+    results <- Andrews.test(x = simulated_series[last_break_n:(n + m)], M = n-last_break_n)
+
+    if (results$p.value <= p_threshold) {
+      cat("estimated date", n)
+      last_break_n <- n
+      n_total_estimated_dates <- n_total_estimated_dates + 1
+      for (true_date in true_break_dates) {
+        if (true_date - error_size_1 <= n && n <= true_date + error_size_1) {
+          n_estimated_true_1 <- n_estimated_true_1 + 1
+        }
+        if (true_date - error_size_2 <= n && n <= true_date + error_size_2) {
+          n_estimated_true_2 <- n_estimated_true_2 + 1
+        }
+      }
+    }
+  }
+  n_total_true_break_dates <- n_total_true_break_dates + 2
+}
+```
+
+```{r, echo=FALSE}
+cat("results for", experiment_repeat, "repetitions")
+cat("segment size", segment_size)
+cat("size m", m)
+cat("available samples before test start", samples_before_test)
+cat("break in coefficient", coefficient_break)
+cat("break in mean", mean_break)
+cat('p_threshold', p_threshold)
+
+cat("n_total_true_break_dates", n_total_true_break_dates)
+cat("n_total_estimated_dates", n_total_estimated_dates)
+cat("n_estimated_true 0.1", n_estimated_true_1)
+cat("n_estimated_true 0.2", n_estimated_true_2)
+
+# cat("precision 0.1 error", n_estimated_true_1 / n_total_estimated_dates)
+# cat("recall 0.1 error", n_estimated_true_1 / n_total_true_break_dates)
+
+cat("precision 0.2 error", n_estimated_true_2 / n_total_estimated_dates)
+cat("recall 0.2 error", n_estimated_true_2 / n_total_true_break_dates)
+```
+
+```{r, include=FALSE}
+set.seed(10)
+experiment_repeat <- 5000
+segment_size <- 50
+m <- 10
+samples_before_test <- 30
+
+coefficient_break <- 0.9
+mean_break <- 0
+
+
+true_break_dates <- c(segment_size * 1, segment_size * 2)
+p_threshold <- 0.0001
+error_percentage_1 <- 0.1
+error_percentage_2 <- 0.2
+error_size_1 <- error_percentage_1 * m
+error_size_2 <- error_percentage_2 * m
+
+n_total_estimated_dates <- 0
+n_total_true_break_dates <- 0
+n_estimated_true_1 <- 0
+n_estimated_true_2 <- 0
+
+for (i in 1:experiment_repeat) {
+  simulated_series <- c(
+                        arima.sim(n = segment_size, list(ar = c(0.1))),
+                        arima.sim(n = segment_size, list(ar = c(coefficient_break))) + mean_break,
+                        arima.sim(n = segment_size, list(ar = c(0.1))))
+
+  last_break_n <- 0
+  for (n in 0:(length(simulated_series) - m)) {
+    if (n <= last_break_n+samples_before_test) next
+    results <- Andrews.test(x = simulated_series[last_break_n:(n + m)], M = n-last_break_n)
+
+    if (results$p.value <= p_threshold) {
+      cat("estimated date", n)
+      last_break_n <- n
+      n_total_estimated_dates <- n_total_estimated_dates + 1
+      for (true_date in true_break_dates) {
+        if (true_date - error_size_1 <= n && n <= true_date + error_size_1) {
+          n_estimated_true_1 <- n_estimated_true_1 + 1
+        }
+        if (true_date - error_size_2 <= n && n <= true_date + error_size_2) {
+          n_estimated_true_2 <- n_estimated_true_2 + 1
+        }
+      }
+    }
+  }
+  n_total_true_break_dates <- n_total_true_break_dates + 2
+}
+```
+
+```{r, echo=FALSE}
+cat("results for", experiment_repeat, "repetitions")
+cat("segment size", segment_size)
+cat("size m", m)
+cat("available samples before test start", samples_before_test)
+cat("break in coefficient", coefficient_break)
+cat("break in mean", mean_break)
+cat('p_threshold', p_threshold)
+
+cat("n_total_true_break_dates", n_total_true_break_dates)
+cat("n_total_estimated_dates", n_total_estimated_dates)
+cat("n_estimated_true 0.1", n_estimated_true_1)
+cat("n_estimated_true 0.2", n_estimated_true_2)
+
+# cat("precision 0.1 error", n_estimated_true_1 / n_total_estimated_dates)
+# cat("recall 0.1 error", n_estimated_true_1 / n_total_true_break_dates)
+
+cat("precision 0.2 error", n_estimated_true_2 / n_total_estimated_dates)
+cat("recall 0.2 error", n_estimated_true_2 / n_total_true_break_dates)
+```
+
+
+
+
+```{r, include=FALSE}
+set.seed(10)
+experiment_repeat <- 5000
+segment_size <- 100
+m <- 5
+samples_before_test <- 30
+
+coefficient_break <- 0.5
+mean_break <- 0
+
+
+true_break_dates <- c(segment_size * 1, segment_size * 2)
+p_threshold <- 0.0001
+error_percentage_1 <- 0.1
+error_percentage_2 <- 0.2
+error_size_1 <- error_percentage_1 * m
+error_size_2 <- error_percentage_2 * m
+
+n_total_estimated_dates <- 0
+n_total_true_break_dates <- 0
+n_estimated_true_1 <- 0
+n_estimated_true_2 <- 0
+
+for (i in 1:experiment_repeat) {
+  simulated_series <- c(
+                        arima.sim(n = segment_size, list(ar = c(0.1))),
+                        arima.sim(n = segment_size, list(ar = c(coefficient_break))) + mean_break,
+                        arima.sim(n = segment_size, list(ar = c(0.1))))
+
+  last_break_n <- 0
+  for (n in 0:(length(simulated_series) - m)) {
+    if (n <= last_break_n+samples_before_test) next
+    results <- Andrews.test(x = simulated_series[last_break_n:(n + m)], M = n-last_break_n)
+
+    if (results$p.value <= p_threshold) {
+      cat("estimated date", n)
+      last_break_n <- n
+      n_total_estimated_dates <- n_total_estimated_dates + 1
+      for (true_date in true_break_dates) {
+        if (true_date - error_size_1 <= n && n <= true_date + error_size_1) {
+          n_estimated_true_1 <- n_estimated_true_1 + 1
+        }
+        if (true_date - error_size_2 <= n && n <= true_date + error_size_2) {
+          n_estimated_true_2 <- n_estimated_true_2 + 1
+        }
+      }
+    }
+  }
+  n_total_true_break_dates <- n_total_true_break_dates + 2
+}
+```
+
+```{r, echo=FALSE}
+cat("results for", experiment_repeat, "repetitions")
+cat("segment size", segment_size)
+cat("size m", m)
+cat("available samples before test start", samples_before_test)
+cat("break in coefficient", coefficient_break)
+cat("break in mean", mean_break)
+cat('p_threshold', p_threshold)
+
+cat("n_total_true_break_dates", n_total_true_break_dates)
+cat("n_total_estimated_dates", n_total_estimated_dates)
+cat("n_estimated_true 0.1", n_estimated_true_1)
+cat("n_estimated_true 0.2", n_estimated_true_2)
+
+# cat("precision 0.1 error", n_estimated_true_1 / n_total_estimated_dates)
+# cat("recall 0.1 error", n_estimated_true_1 / n_total_true_break_dates)
+
+cat("precision 0.2 error", n_estimated_true_2 / n_total_estimated_dates)
+cat("recall 0.2 error", n_estimated_true_2 / n_total_true_break_dates)
+```
+
+```{r, include=FALSE}
+set.seed(10)
+experiment_repeat <- 5000
+segment_size <- 100
+m <- 5
+samples_before_test <- 30
+
+coefficient_break <- 0.7
+mean_break <- 0
+
+
+true_break_dates <- c(segment_size * 1, segment_size * 2)
+p_threshold <- 0.0001
+error_percentage_1 <- 0.1
+error_percentage_2 <- 0.2
+error_size_1 <- error_percentage_1 * m
+error_size_2 <- error_percentage_2 * m
+
+n_total_estimated_dates <- 0
+n_total_true_break_dates <- 0
+n_estimated_true_1 <- 0
+n_estimated_true_2 <- 0
+
+for (i in 1:experiment_repeat) {
+  simulated_series <- c(
+                        arima.sim(n = segment_size, list(ar = c(0.1))),
+                        arima.sim(n = segment_size, list(ar = c(coefficient_break))) + mean_break,
+                        arima.sim(n = segment_size, list(ar = c(0.1))))
+
+  last_break_n <- 0
+  for (n in 0:(length(simulated_series) - m)) {
+    if (n <= last_break_n+samples_before_test) next
+    results <- Andrews.test(x = simulated_series[last_break_n:(n + m)], M = n-last_break_n)
+
+    if (results$p.value <= p_threshold) {
+      cat("estimated date", n)
+      last_break_n <- n
+      n_total_estimated_dates <- n_total_estimated_dates + 1
+      for (true_date in true_break_dates) {
+        if (true_date - error_size_1 <= n && n <= true_date + error_size_1) {
+          n_estimated_true_1 <- n_estimated_true_1 + 1
+        }
+        if (true_date - error_size_2 <= n && n <= true_date + error_size_2) {
+          n_estimated_true_2 <- n_estimated_true_2 + 1
+        }
+      }
+    }
+  }
+  n_total_true_break_dates <- n_total_true_break_dates + 2
+}
+```
+
+```{r, echo=FALSE}
+cat("results for", experiment_repeat, "repetitions")
+cat("segment size", segment_size)
+cat("size m", m)
+cat("available samples before test start", samples_before_test)
+cat("break in coefficient", coefficient_break)
+cat("break in mean", mean_break)
+cat('p_threshold', p_threshold)
+
+cat("n_total_true_break_dates", n_total_true_break_dates)
+cat("n_total_estimated_dates", n_total_estimated_dates)
+cat("n_estimated_true 0.1", n_estimated_true_1)
+cat("n_estimated_true 0.2", n_estimated_true_2)
+
+# cat("precision 0.1 error", n_estimated_true_1 / n_total_estimated_dates)
+# cat("recall 0.1 error", n_estimated_true_1 / n_total_true_break_dates)
+
+cat("precision 0.2 error", n_estimated_true_2 / n_total_estimated_dates)
+cat("recall 0.2 error", n_estimated_true_2 / n_total_true_break_dates)
+```
+
+```{r, include=FALSE}
+set.seed(10)
+experiment_repeat <- 5000
+segment_size <- 100
+m <- 5
+samples_before_test <- 30
+
+coefficient_break <- 0.9
+mean_break <- 0
+
+
+true_break_dates <- c(segment_size * 1, segment_size * 2)
+p_threshold <- 0.0001
+error_percentage_1 <- 0.1
+error_percentage_2 <- 0.2
+error_size_1 <- error_percentage_1 * m
+error_size_2 <- error_percentage_2 * m
+
+n_total_estimated_dates <- 0
+n_total_true_break_dates <- 0
+n_estimated_true_1 <- 0
+n_estimated_true_2 <- 0
+
+for (i in 1:experiment_repeat) {
+  simulated_series <- c(
+                        arima.sim(n = segment_size, list(ar = c(0.1))),
+                        arima.sim(n = segment_size, list(ar = c(coefficient_break))) + mean_break,
+                        arima.sim(n = segment_size, list(ar = c(0.1))))
+
+  last_break_n <- 0
+  for (n in 0:(length(simulated_series) - m)) {
+    if (n <= last_break_n+samples_before_test) next
+    results <- Andrews.test(x = simulated_series[last_break_n:(n + m)], M = n-last_break_n)
+
+    if (results$p.value <= p_threshold) {
+      cat("estimated date", n)
+      last_break_n <- n
+      n_total_estimated_dates <- n_total_estimated_dates + 1
+      for (true_date in true_break_dates) {
+        if (true_date - error_size_1 <= n && n <= true_date + error_size_1) {
+          n_estimated_true_1 <- n_estimated_true_1 + 1
+        }
+        if (true_date - error_size_2 <= n && n <= true_date + error_size_2) {
+          n_estimated_true_2 <- n_estimated_true_2 + 1
+        }
+      }
+    }
+  }
+  n_total_true_break_dates <- n_total_true_break_dates + 2
+}
+```
+
+```{r, echo=FALSE}
+cat("results for", experiment_repeat, "repetitions")
+cat("segment size", segment_size)
+cat("size m", m)
+cat("available samples before test start", samples_before_test)
+cat("break in coefficient", coefficient_break)
+cat("break in mean", mean_break)
+cat('p_threshold', p_threshold)
+
+cat("n_total_true_break_dates", n_total_true_break_dates)
+cat("n_total_estimated_dates", n_total_estimated_dates)
+cat("n_estimated_true 0.1", n_estimated_true_1)
+cat("n_estimated_true 0.2", n_estimated_true_2)
+
+# cat("precision 0.1 error", n_estimated_true_1 / n_total_estimated_dates)
+# cat("recall 0.1 error", n_estimated_true_1 / n_total_true_break_dates)
+
+cat("precision 0.2 error", n_estimated_true_2 / n_total_estimated_dates)
+cat("recall 0.2 error", n_estimated_true_2 / n_total_true_break_dates)
+```
+
+
+```{r, include=FALSE}
+set.seed(10)
+experiment_repeat <- 5000
+segment_size <- 100
+m <- 10
+samples_before_test <- 30
+
+coefficient_break <- 0.5
+mean_break <- 0
+
+
+true_break_dates <- c(segment_size * 1, segment_size * 2)
+p_threshold <- 0.0001
+error_percentage_1 <- 0.1
+error_percentage_2 <- 0.2
+error_size_1 <- error_percentage_1 * m
+error_size_2 <- error_percentage_2 * m
+
+n_total_estimated_dates <- 0
+n_total_true_break_dates <- 0
+n_estimated_true_1 <- 0
+n_estimated_true_2 <- 0
+
+for (i in 1:experiment_repeat) {
+  simulated_series <- c(
+                        arima.sim(n = segment_size, list(ar = c(0.1))),
+                        arima.sim(n = segment_size, list(ar = c(coefficient_break))) + mean_break,
+                        arima.sim(n = segment_size, list(ar = c(0.1))))
+
+  last_break_n <- 0
+  for (n in 0:(length(simulated_series) - m)) {
+    if (n <= last_break_n+samples_before_test) next
+    results <- Andrews.test(x = simulated_series[last_break_n:(n + m)], M = n-last_break_n)
+
+    if (results$p.value <= p_threshold) {
+      cat("estimated date", n)
+      last_break_n <- n
+      n_total_estimated_dates <- n_total_estimated_dates + 1
+      for (true_date in true_break_dates) {
+        if (true_date - error_size_1 <= n && n <= true_date + error_size_1) {
+          n_estimated_true_1 <- n_estimated_true_1 + 1
+        }
+        if (true_date - error_size_2 <= n && n <= true_date + error_size_2) {
+          n_estimated_true_2 <- n_estimated_true_2 + 1
+        }
+      }
+    }
+  }
+  n_total_true_break_dates <- n_total_true_break_dates + 2
+}
+```
+
+```{r, echo=FALSE}
+cat("results for", experiment_repeat, "repetitions")
+cat("segment size", segment_size)
+cat("size m", m)
+cat("available samples before test start", samples_before_test)
+cat("break in coefficient", coefficient_break)
+cat("break in mean", mean_break)
+cat('p_threshold', p_threshold)
+
+cat("n_total_true_break_dates", n_total_true_break_dates)
+cat("n_total_estimated_dates", n_total_estimated_dates)
+cat("n_estimated_true 0.1", n_estimated_true_1)
+cat("n_estimated_true 0.2", n_estimated_true_2)
+
+# cat("precision 0.1 error", n_estimated_true_1 / n_total_estimated_dates)
+# cat("recall 0.1 error", n_estimated_true_1 / n_total_true_break_dates)
+
+cat("precision 0.2 error", n_estimated_true_2 / n_total_estimated_dates)
+cat("recall 0.2 error", n_estimated_true_2 / n_total_true_break_dates)
+```
+
+```{r, include=FALSE}
+set.seed(10)
+experiment_repeat <- 5000
+segment_size <- 100
+m <- 10
+samples_before_test <- 30
+
+coefficient_break <- 0.7
+mean_break <- 0
+
+
+true_break_dates <- c(segment_size * 1, segment_size * 2)
+p_threshold <- 0.0001
+error_percentage_1 <- 0.1
+error_percentage_2 <- 0.2
+error_size_1 <- error_percentage_1 * m
+error_size_2 <- error_percentage_2 * m
+
+n_total_estimated_dates <- 0
+n_total_true_break_dates <- 0
+n_estimated_true_1 <- 0
+n_estimated_true_2 <- 0
+
+for (i in 1:experiment_repeat) {
+  simulated_series <- c(
+                        arima.sim(n = segment_size, list(ar = c(0.1))),
+                        arima.sim(n = segment_size, list(ar = c(coefficient_break))) + mean_break,
+                        arima.sim(n = segment_size, list(ar = c(0.1))))
+
+  last_break_n <- 0
+  for (n in 0:(length(simulated_series) - m)) {
+    if (n <= last_break_n+samples_before_test) next
+    results <- Andrews.test(x = simulated_series[last_break_n:(n + m)], M = n-last_break_n)
+
+    if (results$p.value <= p_threshold) {
+      cat("estimated date", n)
+      last_break_n <- n
+      n_total_estimated_dates <- n_total_estimated_dates + 1
+      for (true_date in true_break_dates) {
+        if (true_date - error_size_1 <= n && n <= true_date + error_size_1) {
+          n_estimated_true_1 <- n_estimated_true_1 + 1
+        }
+        if (true_date - error_size_2 <= n && n <= true_date + error_size_2) {
+          n_estimated_true_2 <- n_estimated_true_2 + 1
+        }
+      }
+    }
+  }
+  n_total_true_break_dates <- n_total_true_break_dates + 2
+}
+```
+
+```{r, echo=FALSE}
+cat("results for", experiment_repeat, "repetitions")
+cat("segment size", segment_size)
+cat("size m", m)
+cat("available samples before test start", samples_before_test)
+cat("break in coefficient", coefficient_break)
+cat("break in mean", mean_break)
+cat('p_threshold', p_threshold)
+
+cat("n_total_true_break_dates", n_total_true_break_dates)
+cat("n_total_estimated_dates", n_total_estimated_dates)
+cat("n_estimated_true 0.1", n_estimated_true_1)
+cat("n_estimated_true 0.2", n_estimated_true_2)
+
+# cat("precision 0.1 error", n_estimated_true_1 / n_total_estimated_dates)
+# cat("recall 0.1 error", n_estimated_true_1 / n_total_true_break_dates)
+
+cat("precision 0.2 error", n_estimated_true_2 / n_total_estimated_dates)
+cat("recall 0.2 error", n_estimated_true_2 / n_total_true_break_dates)
+```
+
+```{r, include=FALSE}
+set.seed(10)
+experiment_repeat <- 5000
+segment_size <- 100
+m <- 10
+samples_before_test <- 30
+
+coefficient_break <- 0.9
+mean_break <- 0
+
+
+true_break_dates <- c(segment_size * 1, segment_size * 2)
+p_threshold <- 0.0001
+error_percentage_1 <- 0.1
+error_percentage_2 <- 0.2
+error_size_1 <- error_percentage_1 * m
+error_size_2 <- error_percentage_2 * m
+
+n_total_estimated_dates <- 0
+n_total_true_break_dates <- 0
+n_estimated_true_1 <- 0
+n_estimated_true_2 <- 0
+
+for (i in 1:experiment_repeat) {
+  simulated_series <- c(
+                        arima.sim(n = segment_size, list(ar = c(0.1))),
+                        arima.sim(n = segment_size, list(ar = c(coefficient_break))) + mean_break,
+                        arima.sim(n = segment_size, list(ar = c(0.1))))
+
+  last_break_n <- 0
+  for (n in 0:(length(simulated_series) - m)) {
+    if (n <= last_break_n+samples_before_test) next
+    results <- Andrews.test(x = simulated_series[last_break_n:(n + m)], M = n-last_break_n)
+
+    if (results$p.value <= p_threshold) {
+      cat("estimated date", n)
+      last_break_n <- n
+      n_total_estimated_dates <- n_total_estimated_dates + 1
+      for (true_date in true_break_dates) {
+        if (true_date - error_size_1 <= n && n <= true_date + error_size_1) {
+          n_estimated_true_1 <- n_estimated_true_1 + 1
+        }
+        if (true_date - error_size_2 <= n && n <= true_date + error_size_2) {
+          n_estimated_true_2 <- n_estimated_true_2 + 1
+        }
+      }
+    }
+  }
+  n_total_true_break_dates <- n_total_true_break_dates + 2
+}
+```
+
+```{r, echo=FALSE}
+cat("results for", experiment_repeat, "repetitions")
+cat("segment size", segment_size)
+cat("size m", m)
+cat("available samples before test start", samples_before_test)
+cat("break in coefficient", coefficient_break)
+cat("break in mean", mean_break)
+cat('p_threshold', p_threshold)
+
+cat("n_total_true_break_dates", n_total_true_break_dates)
+cat("n_total_estimated_dates", n_total_estimated_dates)
+cat("n_estimated_true 0.1", n_estimated_true_1)
+cat("n_estimated_true 0.2", n_estimated_true_2)
+
+# cat("precision 0.1 error", n_estimated_true_1 / n_total_estimated_dates)
+# cat("recall 0.1 error", n_estimated_true_1 / n_total_true_break_dates)
+
+cat("precision 0.2 error", n_estimated_true_2 / n_total_estimated_dates)
+cat("recall 0.2 error", n_estimated_true_2 / n_total_true_break_dates)
+```
+
+```{r, include=FALSE}
+set.seed(10)
+experiment_repeat <- 5000
+segment_size <- 100
+m <- 5
+samples_before_test <- 50
+
+coefficient_break <- 0.5
+mean_break <- 0
+
+
+true_break_dates <- c(segment_size * 1, segment_size * 2)
+p_threshold <- 0.0001
+error_percentage_1 <- 0.1
+error_percentage_2 <- 0.2
+error_size_1 <- error_percentage_1 * m
+error_size_2 <- error_percentage_2 * m
+
+n_total_estimated_dates <- 0
+n_total_true_break_dates <- 0
+n_estimated_true_1 <- 0
+n_estimated_true_2 <- 0
+
+for (i in 1:experiment_repeat) {
+  simulated_series <- c(
+                        arima.sim(n = segment_size, list(ar = c(0.1))),
+                        arima.sim(n = segment_size, list(ar = c(coefficient_break))) + mean_break,
+                        arima.sim(n = segment_size, list(ar = c(0.1))))
+
+  last_break_n <- 0
+  for (n in 0:(length(simulated_series) - m)) {
+    if (n <= last_break_n+samples_before_test) next
+    results <- Andrews.test(x = simulated_series[last_break_n:(n + m)], M = n-last_break_n)
+
+    if (results$p.value <= p_threshold) {
+      cat("estimated date", n)
+      last_break_n <- n
+      n_total_estimated_dates <- n_total_estimated_dates + 1
+      for (true_date in true_break_dates) {
+        if (true_date - error_size_1 <= n && n <= true_date + error_size_1) {
+          n_estimated_true_1 <- n_estimated_true_1 + 1
+        }
+        if (true_date - error_size_2 <= n && n <= true_date + error_size_2) {
+          n_estimated_true_2 <- n_estimated_true_2 + 1
+        }
+      }
+    }
+  }
+  n_total_true_break_dates <- n_total_true_break_dates + 2
+}
+```
+
+```{r, echo=FALSE}
+cat("results for", experiment_repeat, "repetitions")
+cat("segment size", segment_size)
+cat("size m", m)
+cat("available samples before test start", samples_before_test)
+cat("break in coefficient", coefficient_break)
+cat("break in mean", mean_break)
+cat('p_threshold', p_threshold)
+
+cat("n_total_true_break_dates", n_total_true_break_dates)
+cat("n_total_estimated_dates", n_total_estimated_dates)
+cat("n_estimated_true 0.1", n_estimated_true_1)
+cat("n_estimated_true 0.2", n_estimated_true_2)
+
+# cat("precision 0.1 error", n_estimated_true_1 / n_total_estimated_dates)
+# cat("recall 0.1 error", n_estimated_true_1 / n_total_true_break_dates)
+
+cat("precision 0.2 error", n_estimated_true_2 / n_total_estimated_dates)
+cat("recall 0.2 error", n_estimated_true_2 / n_total_true_break_dates)
+```
+
+```{r, include=FALSE}
+set.seed(10)
+experiment_repeat <- 5000
+segment_size <- 100
+m <- 5
+samples_before_test <- 50
+
+coefficient_break <- 0.7
+mean_break <- 0
+
+
+true_break_dates <- c(segment_size * 1, segment_size * 2)
+p_threshold <- 0.0001
+error_percentage_1 <- 0.1
+error_percentage_2 <- 0.2
+error_size_1 <- error_percentage_1 * m
+error_size_2 <- error_percentage_2 * m
+
+n_total_estimated_dates <- 0
+n_total_true_break_dates <- 0
+n_estimated_true_1 <- 0
+n_estimated_true_2 <- 0
+
+for (i in 1:experiment_repeat) {
+  simulated_series <- c(
+                        arima.sim(n = segment_size, list(ar = c(0.1))),
+                        arima.sim(n = segment_size, list(ar = c(coefficient_break))) + mean_break,
+                        arima.sim(n = segment_size, list(ar = c(0.1))))
+
+  last_break_n <- 0
+  for (n in 0:(length(simulated_series) - m)) {
+    if (n <= last_break_n+samples_before_test) next
+    results <- Andrews.test(x = simulated_series[last_break_n:(n + m)], M = n-last_break_n)
+
+    if (results$p.value <= p_threshold) {
+      cat("estimated date", n)
+      last_break_n <- n
+      n_total_estimated_dates <- n_total_estimated_dates + 1
+      for (true_date in true_break_dates) {
+        if (true_date - error_size_1 <= n && n <= true_date + error_size_1) {
+          n_estimated_true_1 <- n_estimated_true_1 + 1
+        }
+        if (true_date - error_size_2 <= n && n <= true_date + error_size_2) {
+          n_estimated_true_2 <- n_estimated_true_2 + 1
+        }
+      }
+    }
+  }
+  n_total_true_break_dates <- n_total_true_break_dates + 2
+}
+```
+
+```{r, echo=FALSE}
+cat("results for", experiment_repeat, "repetitions")
+cat("segment size", segment_size)
+cat("size m", m)
+cat("available samples before test start", samples_before_test)
+cat("break in coefficient", coefficient_break)
+cat("break in mean", mean_break)
+cat('p_threshold', p_threshold)
+
+cat("n_total_true_break_dates", n_total_true_break_dates)
+cat("n_total_estimated_dates", n_total_estimated_dates)
+cat("n_estimated_true 0.1", n_estimated_true_1)
+cat("n_estimated_true 0.2", n_estimated_true_2)
+
+# cat("precision 0.1 error", n_estimated_true_1 / n_total_estimated_dates)
+# cat("recall 0.1 error", n_estimated_true_1 / n_total_true_break_dates)
+
+cat("precision 0.2 error", n_estimated_true_2 / n_total_estimated_dates)
+cat("recall 0.2 error", n_estimated_true_2 / n_total_true_break_dates)
+```
+
+```{r, include=FALSE}
+set.seed(10)
+experiment_repeat <- 5000
+segment_size <- 100
+m <- 5
+samples_before_test <- 50
+
+coefficient_break <- 0.9
+mean_break <- 0
+
+
+true_break_dates <- c(segment_size * 1, segment_size * 2)
+p_threshold <- 0.0001
+error_percentage_1 <- 0.1
+error_percentage_2 <- 0.2
+error_size_1 <- error_percentage_1 * m
+error_size_2 <- error_percentage_2 * m
+
+n_total_estimated_dates <- 0
+n_total_true_break_dates <- 0
+n_estimated_true_1 <- 0
+n_estimated_true_2 <- 0
+
+for (i in 1:experiment_repeat) {
+  simulated_series <- c(
+                        arima.sim(n = segment_size, list(ar = c(0.1))),
+                        arima.sim(n = segment_size, list(ar = c(coefficient_break))) + mean_break,
+                        arima.sim(n = segment_size, list(ar = c(0.1))))
+
+  last_break_n <- 0
+  for (n in 0:(length(simulated_series) - m)) {
+    if (n <= last_break_n+samples_before_test) next
+    results <- Andrews.test(x = simulated_series[last_break_n:(n + m)], M = n-last_break_n)
+
+    if (results$p.value <= p_threshold) {
+      cat("estimated date", n)
+      last_break_n <- n
+      n_total_estimated_dates <- n_total_estimated_dates + 1
+      for (true_date in true_break_dates) {
+        if (true_date - error_size_1 <= n && n <= true_date + error_size_1) {
+          n_estimated_true_1 <- n_estimated_true_1 + 1
+        }
+        if (true_date - error_size_2 <= n && n <= true_date + error_size_2) {
+          n_estimated_true_2 <- n_estimated_true_2 + 1
+        }
+      }
+    }
+  }
+  n_total_true_break_dates <- n_total_true_break_dates + 2
+}
+```
+
+```{r, echo=FALSE}
+cat("results for", experiment_repeat, "repetitions")
+cat("segment size", segment_size)
+cat("size m", m)
+cat("available samples before test start", samples_before_test)
+cat("break in coefficient", coefficient_break)
+cat("break in mean", mean_break)
+cat('p_threshold', p_threshold)
+
+cat("n_total_true_break_dates", n_total_true_break_dates)
+cat("n_total_estimated_dates", n_total_estimated_dates)
+cat("n_estimated_true 0.1", n_estimated_true_1)
+cat("n_estimated_true 0.2", n_estimated_true_2)
+
+# cat("precision 0.1 error", n_estimated_true_1 / n_total_estimated_dates)
+# cat("recall 0.1 error", n_estimated_true_1 / n_total_true_break_dates)
+
+cat("precision 0.2 error", n_estimated_true_2 / n_total_estimated_dates)
+cat("recall 0.2 error", n_estimated_true_2 / n_total_true_break_dates)
+```
+
+```{r, include=FALSE}
+set.seed(10)
+experiment_repeat <- 5000
+segment_size <- 100
+m <- 10
+samples_before_test <- 50
+
+coefficient_break <- 0.5
+mean_break <- 0
+
+
+true_break_dates <- c(segment_size * 1, segment_size * 2)
+p_threshold <- 0.0001
+error_percentage_1 <- 0.1
+error_percentage_2 <- 0.2
+error_size_1 <- error_percentage_1 * m
+error_size_2 <- error_percentage_2 * m
+
+n_total_estimated_dates <- 0
+n_total_true_break_dates <- 0
+n_estimated_true_1 <- 0
+n_estimated_true_2 <- 0
+
+for (i in 1:experiment_repeat) {
+  simulated_series <- c(
+                        arima.sim(n = segment_size, list(ar = c(0.1))),
+                        arima.sim(n = segment_size, list(ar = c(coefficient_break))) + mean_break,
+                        arima.sim(n = segment_size, list(ar = c(0.1))))
+
+  last_break_n <- 0
+  for (n in 0:(length(simulated_series) - m)) {
+    if (n <= last_break_n+samples_before_test) next
+    results <- Andrews.test(x = simulated_series[last_break_n:(n + m)], M = n-last_break_n)
+
+    if (results$p.value <= p_threshold) {
+      cat("estimated date", n)
+      last_break_n <- n
+      n_total_estimated_dates <- n_total_estimated_dates + 1
+      for (true_date in true_break_dates) {
+        if (true_date - error_size_1 <= n && n <= true_date + error_size_1) {
+          n_estimated_true_1 <- n_estimated_true_1 + 1
+        }
+        if (true_date - error_size_2 <= n && n <= true_date + error_size_2) {
+          n_estimated_true_2 <- n_estimated_true_2 + 1
+        }
+      }
+    }
+  }
+  n_total_true_break_dates <- n_total_true_break_dates + 2
+}
+```
+
+```{r, echo=FALSE}
+cat("results for", experiment_repeat, "repetitions")
+cat("segment size", segment_size)
+cat("size m", m)
+cat("available samples before test start", samples_before_test)
+cat("break in coefficient", coefficient_break)
+cat("break in mean", mean_break)
+cat('p_threshold', p_threshold)
+
+cat("n_total_true_break_dates", n_total_true_break_dates)
+cat("n_total_estimated_dates", n_total_estimated_dates)
+cat("n_estimated_true 0.1", n_estimated_true_1)
+cat("n_estimated_true 0.2", n_estimated_true_2)
+
+# cat("precision 0.1 error", n_estimated_true_1 / n_total_estimated_dates)
+# cat("recall 0.1 error", n_estimated_true_1 / n_total_true_break_dates)
+
+cat("precision 0.2 error", n_estimated_true_2 / n_total_estimated_dates)
+cat("recall 0.2 error", n_estimated_true_2 / n_total_true_break_dates)
+```
+
+```{r, include=FALSE}
+set.seed(10)
+experiment_repeat <- 5000
+segment_size <- 100
+m <- 10
+samples_before_test <- 50
+
+coefficient_break <- 0.7
+mean_break <- 0
+
+
+true_break_dates <- c(segment_size * 1, segment_size * 2)
+p_threshold <- 0.0001
+error_percentage_1 <- 0.1
+error_percentage_2 <- 0.2
+error_size_1 <- error_percentage_1 * m
+error_size_2 <- error_percentage_2 * m
+
+n_total_estimated_dates <- 0
+n_total_true_break_dates <- 0
+n_estimated_true_1 <- 0
+n_estimated_true_2 <- 0
+
+for (i in 1:experiment_repeat) {
+  simulated_series <- c(
+                        arima.sim(n = segment_size, list(ar = c(0.1))),
+                        arima.sim(n = segment_size, list(ar = c(coefficient_break))) + mean_break,
+                        arima.sim(n = segment_size, list(ar = c(0.1))))
+
+  last_break_n <- 0
+  for (n in 0:(length(simulated_series) - m)) {
+    if (n <= last_break_n+samples_before_test) next
+    results <- Andrews.test(x = simulated_series[last_break_n:(n + m)], M = n-last_break_n)
+
+    if (results$p.value <= p_threshold) {
+      cat("estimated date", n)
+      last_break_n <- n
+      n_total_estimated_dates <- n_total_estimated_dates + 1
+      for (true_date in true_break_dates) {
+        if (true_date - error_size_1 <= n && n <= true_date + error_size_1) {
+          n_estimated_true_1 <- n_estimated_true_1 + 1
+        }
+        if (true_date - error_size_2 <= n && n <= true_date + error_size_2) {
+          n_estimated_true_2 <- n_estimated_true_2 + 1
+        }
+      }
+    }
+  }
+  n_total_true_break_dates <- n_total_true_break_dates + 2
+}
+```
+
+```{r, echo=FALSE}
+cat("results for", experiment_repeat, "repetitions")
+cat("segment size", segment_size)
+cat("size m", m)
+cat("available samples before test start", samples_before_test)
+cat("break in coefficient", coefficient_break)
+cat("break in mean", mean_break)
+cat('p_threshold', p_threshold)
+
+cat("n_total_true_break_dates", n_total_true_break_dates)
+cat("n_total_estimated_dates", n_total_estimated_dates)
+cat("n_estimated_true 0.1", n_estimated_true_1)
+cat("n_estimated_true 0.2", n_estimated_true_2)
+
+# cat("precision 0.1 error", n_estimated_true_1 / n_total_estimated_dates)
+# cat("recall 0.1 error", n_estimated_true_1 / n_total_true_break_dates)
+
+cat("precision 0.2 error", n_estimated_true_2 / n_total_estimated_dates)
+cat("recall 0.2 error", n_estimated_true_2 / n_total_true_break_dates)
+```
+
+```{r, include=FALSE}
+set.seed(10)
+experiment_repeat <- 5000
+segment_size <- 100
+m <- 10
+samples_before_test <- 50
+
+coefficient_break <- 0.9
+mean_break <- 0
+
+
+true_break_dates <- c(segment_size * 1, segment_size * 2)
+p_threshold <- 0.0001
+error_percentage_1 <- 0.1
+error_percentage_2 <- 0.2
+error_size_1 <- error_percentage_1 * m
+error_size_2 <- error_percentage_2 * m
+
+n_total_estimated_dates <- 0
+n_total_true_break_dates <- 0
+n_estimated_true_1 <- 0
+n_estimated_true_2 <- 0
+
+for (i in 1:experiment_repeat) {
+  simulated_series <- c(
+                        arima.sim(n = segment_size, list(ar = c(0.1))),
+                        arima.sim(n = segment_size, list(ar = c(coefficient_break))) + mean_break,
+                        arima.sim(n = segment_size, list(ar = c(0.1))))
+
+  last_break_n <- 0
+  for (n in 0:(length(simulated_series) - m)) {
+    if (n <= last_break_n+samples_before_test) next
+    results <- Andrews.test(x = simulated_series[last_break_n:(n + m)], M = n-last_break_n)
+
+    if (results$p.value <= p_threshold) {
+      cat("estimated date", n)
+      last_break_n <- n
+      n_total_estimated_dates <- n_total_estimated_dates + 1
+      for (true_date in true_break_dates) {
+        if (true_date - error_size_1 <= n && n <= true_date + error_size_1) {
+          n_estimated_true_1 <- n_estimated_true_1 + 1
+        }
+        if (true_date - error_size_2 <= n && n <= true_date + error_size_2) {
+          n_estimated_true_2 <- n_estimated_true_2 + 1
+        }
+      }
+    }
+  }
+  n_total_true_break_dates <- n_total_true_break_dates + 2
+}
+```
+
+```{r, echo=FALSE}
+cat("results for", experiment_repeat, "repetitions")
+cat("segment size", segment_size)
+cat("size m", m)
+cat("available samples before test start", samples_before_test)
+cat("break in coefficient", coefficient_break)
+cat("break in mean", mean_break)
+cat('p_threshold', p_threshold)
+
+cat("n_total_true_break_dates", n_total_true_break_dates)
+cat("n_total_estimated_dates", n_total_estimated_dates)
+cat("n_estimated_true 0.1", n_estimated_true_1)
+cat("n_estimated_true 0.2", n_estimated_true_2)
+
+# cat("precision 0.1 error", n_estimated_true_1 / n_total_estimated_dates)
+# cat("recall 0.1 error", n_estimated_true_1 / n_total_true_break_dates)
+
+cat("precision 0.2 error", n_estimated_true_2 / n_total_estimated_dates)
+cat("recall 0.2 error", n_estimated_true_2 / n_total_true_break_dates)
+```

@@ -1,0 +1,49 @@
+---
+title: mc_simulation figures
+---
+```{r} 
+
+```
+
+```{r}
+data = read.csv("./code/data/GBP_TO_USD.csv", header=TRUE)$Close
+png(filename = "./code/figures/read_data/gbp_to_usd.png", width=1000, height=400)
+cex <- 1.5
+par(cex.lab=cex, cex.axis=cex, cex.main=cex)
+plot(data, type="l")
+title(main="Panel A: USD to GBP from 2003-12 to 2024-06")
+dev.off()
+```
+
+```{r}
+subset_indices = (1:250)*21
+data = read.csv("./code/data/GBP_TO_USD.csv", header=TRUE)$Close[subset_indices]
+png(filename = "./code/figures/read_data/gbp_to_usd_monthly.png", width=1000, height=400)
+cex <- 1.5
+par(cex.lab=cex, cex.axis=cex, cex.main=cex)
+plot(data, type="l")
+title(main="Panel B: USD to GBP monthly prices")
+dev.off()
+```
+
+```{r}
+# subset_indices = (1:285)*21
+data <- read.csv("./code/data/GOLD.csv", header=TRUE)$Close
+png(filename = "./code/figures/read_data/gold_full.png", width=1000, height=400)
+cex <- 1.5
+par(cex.lab=cex, cex.axis=cex, cex.main=cex)
+plot(data, type="l")
+title(main="Panel C: Gold prices from 2000-8 to 2024-6")
+dev.off()
+```
+
+```{r}
+subset_indices = ((130*21):(250*21))
+data <- read.csv("./code/data/GOLD.csv", header=TRUE)$Close[subset_indices]
+png(filename = "./code/figures/read_data/gold_subset.png", width=1000, height=400)
+cex <- 1.5
+par(cex.lab=cex, cex.axis=cex, cex.main=cex)
+plot(data, type="l")
+title(main="Panel D: Gold prices from 2011-07 to 2021-08")
+dev.off()
+```
